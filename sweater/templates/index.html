@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Success</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript">
+		jQuery(document).ready(function(){
+			jQuery('#send').click(function(){
+				jQuery.ajax({
+					url:'http://localhost:5000/greet',
+					success:function(data){
+						alert(data);
+					}
+				})
+			})
+		})
+
+	</script>
+</head>
+<body>
+<button id="send">send Request</button>
+<h2>Добро пожаловать!</h2>
+<form action="/logout">
+	<button type="submit">Выйти</button>
+</form>
+
+
+</body>
+</html>
