@@ -1,0 +1,1 @@
+web: gunicorn --chdir sweater __init__:app
