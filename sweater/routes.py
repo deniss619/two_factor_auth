@@ -64,7 +64,7 @@ def logout():
     login = request.form.get('login')
     password = request.form.get('password')
     if login and password:
-            logout_user()
+        logout_user()
     return redirect(url_for('login_page'))
 
 

@@ -39,35 +39,66 @@
         </tr>
     </table>
 </form>
+<div class="container"></div>
 
-<div class="tabs">
-  <div class="content">Содержимое 1</div>
-  <div>Вкладка 1</div>
-</div>
-<div class="tabs">
-  <div class="content">Содержимое 2</div>
-  <div>Вкладка 2</div>
-</div>
+<!--<script>-->
+<!--jQuery(document).ready(function(){-->
+<!--    $('body').append('<div id="result">Третий</div>');-->
+<!--})-->
+<!--</script>-->
+<!--<script type="text/javascript">-->
+
+<!--window.onload=function GrabNumber(){-->
+<!--var newdiv = document.createElement("div");-->
+<!--newdiv.id="result"-->
+<!--document.body.appendChild(newdiv);-->
+
+<!--var picHolder = document.getElementById("result");-->
+<!--var img = document.createElement("img");-->
+
+<!--img.src = "./static/image/*.png";-->
+<!--picHolder.appendChild(img);-->
+<!--}-->
+
+
+
+<!--</script>-->
 <script>
-jQuery(document).ready(function(){
-    $('body').append('<div id="result">Третий</div>');
-})
-</script>
-<script type="text/javascript">
+window.onload=function show_imgs(){
+var id_num=1
+for(var i=0;i<25;i++){
+    for(var j=0;j<;j++){
+        var newdiv = document.createElement("div");
+        newdiv.id=String(j)
+        document.body.appendChild(newdiv);
+        var picHolder = document.getElementById(String(j));
+        var img = document.createElement("img");
 
-window.onload=function GrabNumber(){
-var newdiv = document.createElement("div");
-newdiv.id="result"
-document.body.appendChild(newdiv);
 
-var picHolder = document.getElementById("result");
-var img = document.createElement("img");
-
-img.src = "./static/2.png";
-picHolder.appendChild(img);
+        img.src = "./static/image/1.png";
+        picHolder.appendChild(img);
+        id_num++
+    }
 }
+}
+</script>
+<script>
+window.onload=function show_imgs(){
+var id_num=1
+for(var i=0;i<20;i++){
+    for(var j=0;j<20;j++){
+        var newdiv = document.createElement("div");
+        newdiv.id=String(id_num)
+        document.body.appendChild(newdiv);
+        var picHolder = document.getElementById(String(id_num));
+        var img = document.createElement("img");
 
-
+        img.src = "./static/image/"+String(id_num)+".png";
+        picHolder.appendChild(img);
+        id_num++
+    }
+}
+}
 
 </script>
 </body>

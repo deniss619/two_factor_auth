@@ -18,3 +18,4 @@ for i in range(20):
         g+=1
         newimg.paste(img, (i*38, j*38))
 newimg.show()
+newimg.save("./zzz.png")
