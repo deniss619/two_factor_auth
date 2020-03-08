@@ -21,6 +21,7 @@ def say_hello():
 def login_page():
     login = request.form.get('login')
     password = request.form.get('password')
+    pass_img = request.form.get('mass')
     if login and password:
         user = User.query.filter_by(login=login).first()
 
@@ -38,10 +39,11 @@ def login_page():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    #URL='url(./templates/register.html)'
     login = request.form.get('login')
     password = request.form.get('password')
     password2 = request.form.get('password2')
-
+    pass_img = request.form.get('pass_img')
     if request.method == 'POST':
         if not (login or password or password2):
             flash('Пожалуйста, заполните поля')
@@ -49,7 +51,7 @@ def register():
             flash('Пароли не совпадают')
         else:
             hash_pwd = generate_password_hash(password)
-            new_user = User(login=login, password=hash_pwd)
+            new_user = User(login=login, password=hash_pwd, pass_img=pass_img)
             db.session.add(new_user)
             db.session.commit()
 

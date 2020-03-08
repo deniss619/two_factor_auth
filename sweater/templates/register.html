@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!--    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='1.css')}}" >-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='1.css')}}" >
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="./static/1.css" >
     <meta charset="UTF-8">
     <title>Register</title>
 </head>
@@ -35,75 +34,45 @@
 
         </tr>
         <tr>
-            <td><input type="submit" value="Register"></td>
+            <td><input type="submit" value="Register" onclick="sendForm()"></td>
         </tr>
     </table>
-</form>
+    <input id="pass_img" type="hidden" name="pass_img">
 <div id="container" class="container"></div>
 
-<style type="text/css">
-    .box {
-    width:38px;
-        height:38px;
-        background:#f1f1f1;
-        float:left;
-        margin: 0 0 0 0;
-        text-align:center;
+</form>
 
-}
-.container {
-    width: 950px;
-    height: 608px;
-    position: relative;
-    text-align:center;
-}
-</style>
 <script>
 window.onload=function show_imgs(){
-var id_num=1
-var container = document.getElementById("container");
-for(var i=0;i<20;i++){
-    for(var j=0;j<20;j++){
-        var newdiv = document.createElement("div");
-        newdiv.id=String(id_num)
-        newdiv.classList.add("box")
-        newdiv.setAttribute('onclick', 'check(this)');
-<!--        newdiv.setAttribute('type', 'checkbox');-->
-        container.appendChild(newdiv);
-<!--        var picHolder = document.getElementById(String(id_num));-->
-<!--        var img = document.createElement("img");-->
-
-<!--        img.src = "./static/image/"+String(id_num)+".png";-->
-<!--        picHolder.appendChild(img);-->
-        newdiv.style.background = "url(./static/image/"+String(id_num)+".png)";
-        id_num++
+    var id_num=1
+    var container = document.getElementById("container");
+    for(var i =0; i < 20; i++){
+        for(var j = 0; j < 20; j++){
+            var newdiv = document.createElement("div");
+            newdiv.id=String(id_num);
+            newdiv.classList.add("box");
+            newdiv.setAttribute('onclick', 'checkBlock(this)');
+            container.appendChild(newdiv);
+            newdiv.style.background = "url(./static/image/"+String(id_num)+".png)";
+            id_num++
+        }
     }
 }
-}
 
 
-var answer = document.getElementsByClassName('box');
-var cnt = answer.length;
+mass=[]
 
-for (var i = 0; i < cnt; i++) {
-	answer[i].onclick = function() {
-		for (var j = 0; j < cnt; j++) {
-			answer[j].style.background = '';
-		};
-
-		this.style.background = 'url(./static/image/22.png)';
-	};
+function checkBlock(e){
+    e.style.background = 'url(./static/image/22.png)';
+    mass.push(e.id);
 };
-document.addEventListener("click", function (e) {
-console.log('./static/image/'+e.target.id+'.png');
-});
 
-
-function check(el) {
-    el.style.background = 'url(./static/image/22.png)';
+function sendForm(){
+    var input = document.getElementById('pass_img');
+    input.value=mass;
+    input.setAttribute('value', mass.join());
 }
 </script>
-<li id="foobar" onclick="f(this)">...</li>
 
 </body>
 </html>

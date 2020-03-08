@@ -7,6 +7,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(128), nullable=False, unique=True)
     password = db.Column(db.String(255), nullable=False)
+    pass_img = db.Column(db.String(255), nullable=False)
 
     def __repr__(self):
         return "<{}:{}>".format(id, self.name)

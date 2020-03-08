@@ -1,15 +1,15 @@
-.tabs {
-  float: left; /* Все вкладки располагаем в одну строку */
-  margin: 10px; /* Отступы вкладок друг от друга */
+.box {
+    width:38px;
+    height:38px;
+    background:#f1f1f1;
+    float:left;
+    margin: 0 0 0 0;
+    text-align:center;
+
 }
-.content {
-  display: none; /* Скрываем содержимое */
-  padding-top: 20px; /* Чтобы название вкладки было ниже содержимого */
-  position: absolute; /* Чтобы содержимое не двигало элементы на странице */
-}
-.tabs:active .content {
-  display: block; /* Когда кликаем по вкладке, открываем содержимое content */
-}
-.content:hover {
-  display: block; /* Пока курсор наведён на контент, не закрываем его */
+.container {
+    width: 950px;
+    height: 608px;
+    position: relative;
+    text-align:center;
 }
