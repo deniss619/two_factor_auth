@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, request, flash
+from flask import render_template, redirect, url_for, request, flash, send_file, make_response
 from flask_login import login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -21,7 +21,7 @@ def say_hello():
 def login_page():
     login = request.form.get('login')
     password = request.form.get('password')
-    pass_img = request.form.get('mass')
+
     if login and password:
         user = User.query.filter_by(login=login).first()
 
@@ -32,6 +32,28 @@ def login_page():
             return redirect(next_page or url_for('success'))
         else:
             flash('Ошибка в логине или пароле')
+    else:
+        flash('Введите логин и пароль')
+    return render_template('login.html')
+
+
+@app.route('/firstFactor', methods=['GET', 'POST'])
+def firstFactor():
+    login = request.form.get('login')
+    password = request.form.get('password')
+
+    if login and password:
+        user = User.query.filter_by(login=login).first()
+
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            try:
+                return 'zzz.png'
+            except Exception as e:
+                return str(e)
+
+        else:
+            return make_response('Ошибка в логине или пароле', 301)
     else:
         flash('Введите логин и пароль')
     return render_template('login.html')

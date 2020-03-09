@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Login</title>
     <link rel="shortcut icon" href="./static/logo.jpg" type="image/jpg">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles.css')}}" >
 </head>
 <body>
 <h1>login page</h1>
@@ -16,16 +17,17 @@
         </ul>
     {% endif %}
 {% endwith %}
-
-<form method="POST">
+<div id="errorMessage">
+</div>
+<form method="POST" action="firstFactor" id="form">
     <table>
         <tr>
             <td>Логин</td>
-            <td><input type="text" name="login"></td>
+            <td><input type="text" name="login" id="login"></td>
         </tr>
         <tr>
             <td>Пароль</td>
-            <td><input type="password" name="password"></td>
+            <td><input type="password" name="password" id="password"></td>
         </tr>
         <tr>
             <td><input type="submit" value="Login"></td>
@@ -33,7 +35,37 @@
         </tr>
     </table>
 </form>
+<button onclick="checkLoginPassword()">Send</button>
 <script>
+var ajax = new XMLHttpRequest();
+ajax.onreadystatechange = function() {
+    if (ajax.readyState == 4) {
+        if (ajax.status == 200) {
+            var newdiv = document.createElement("div");
+            newdiv.id='container';
+            newdiv.classList.add("container");
+            newdiv.style.background = "url(./static/"+ajax.responseText+")";
+            document.body.appendChild(newdiv);
+            var hidden = document.getElementById("text");
+            hidden.classList.add("hidden");
+        } else {
+        var errorMessage = document.getElementById("errorMessage");
+        var text = document.createElement("p");
+        text.id='text';
+        text.innerHTML = 'Ошибка в логине или пароле'
+        errorMessage.appendChild(text);
+        }
+
+    }
+}
+
+function checkLoginPassword(){
+    params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value;
+    ajax.open('POST', 'firstFactor');
+    ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    ajax.send(params);
+
+}
 <!--function printMousePos(event) {-->
 <!--    console.log("clientX: " + event.offsetX + " - clientY: " + event.offsetY);-->
 <!--}-->
