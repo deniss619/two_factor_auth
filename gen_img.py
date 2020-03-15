@@ -1,21 +1,47 @@
-import glob,random
+import glob, random
 from PIL import Image
+import numpy as np
+from io import BytesIO
+import base64
 
-images = glob.glob("./image/*.png")
-newimg = Image.new('RGB', (760, 760))
-random_mas = random.sample(range(400), 400)
-#print(random_mas)
-# for image in images:
-#     img = Image.open(image)
-#     newimg.paste(img,(0,0))
-#     #img.show()
-#     # img1.save("D:\sandbox\IMG\\"+image)
-#     newimg.show()
-g=0
-for i in range(20):
-    for j in range(20):
-        img = Image.open(images[random_mas[g]])
-        g+=1
-        newimg.paste(img, (i*38, j*38))
-newimg.show()
-newimg.save("./zzz.png")
+images = glob.glob("./sweater/static/image/*.png")
+image = open('./sweater/static/image\\' + str(2) + '.png')
+print(image)
+b=image.encode("UTF-8")
+e=base64.b64encode(b)
+s1=e.decode("UTF-8")
+print(s1)
+#img_data=None
+# with open('./sweater/static/image\\' + str(2) + '.png','rb') as fh:
+#     img_data=fh.read()
+#     print(img_data)
+# with BytesIO(img_data) as img_buf:
+#     with Image.open(img_buf) as img:
+#         img.show()
+# newimg = Image.new('RGB', (494, 494))
+# random_mas = random.sample(range(400), 400)
+# random_mas[random_mas.index(0)] = 400
+# strPassImg = '4,5,6'
+# mass = []
+# g=0
+# buf=''
+# for i in range(len(strPassImg)):
+#     print(strPassImg[i])
+#     if (strPassImg[i] != ','):
+#         buf+=str(strPassImg[i])
+#     else:
+#         mass.append(int(buf))
+#         buf = ''
+# mass.append(int(buf))
+# print(mass)
+# for i in range(len(mass)):
+#     if (random_mas.index(mass[i]) > 168):
+#         random_mas[random.sample(range(168), 1)[0]] = mass[i]
+# g = 1
+# for i in range(13):
+#     for j in range(13):
+#         img = Image.open('./sweater/static/image\\' + str(random_mas[g]) + '.png')
+#         g += 1
+#         newimg.paste(img, (i * 38, j * 38))
+# newimg.show()
+# newimg.save("./zzz.png")

@@ -17,7 +17,7 @@
         </ul>
     {% endif %}
 {% endwith %}
-<div id="errorMessage">
+<div id='errorMessage'>
 </div>
 <form method="POST" action="firstFactor" id="form">
     <table>
@@ -39,16 +39,27 @@
 <script>
 var ajax = new XMLHttpRequest();
 ajax.onreadystatechange = function() {
+var errorMark=0
     if (ajax.readyState == 4) {
         if (ajax.status == 200) {
             var newdiv = document.createElement("div");
-            newdiv.id='container';
-            newdiv.classList.add("container");
-            newdiv.style.background = "url(./static/"+ajax.responseText+")";
+            newdiv.id='containerForLogin';
+            newdiv.classList.add("containerForLogin");
+            newdiv.style.background = "url(data:image/png;base64,"+ajax.responseText+")";
+<!--            newdiv.style.background = "url(./static/"+ajax.responseText+")";-->
+            var url="data:image/png;base64,"+ajax.responseText+")";
+
+            var newimg = document.createElement("img");
+            newimg.src="data:image/png;base64,"+ajax.responseText;
+            document.body.appendChild(newimg);
+            newdiv.style.background = newimg;
             document.body.appendChild(newdiv);
-            var hidden = document.getElementById("text");
-            hidden.classList.add("hidden");
+            if(errorMark==1){
+                var hidden = document.getElementById("text");
+                hidden.classList.add("hidden");
+            }
         } else {
+        errorMark=1
         var errorMessage = document.getElementById("errorMessage");
         var text = document.createElement("p");
         text.id='text';
