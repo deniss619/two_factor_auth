@@ -45,10 +45,6 @@ var errorMark=0
             var newdiv = document.createElement("div");
             newdiv.id='containerForLogin';
             newdiv.classList.add("containerForLogin");
-            newdiv.style.background = "url(data:image/png;base64,"+ajax.responseText+")";
-<!--            newdiv.style.background = "url(./static/"+ajax.responseText+")";-->
-            var url="data:image/png;base64,"+ajax.responseText+")";
-
             var newimg = document.createElement("img");
             newimg.src="data:image/png;base64,"+ajax.responseText;
             document.body.appendChild(newimg);
