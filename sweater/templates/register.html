@@ -34,7 +34,7 @@
 
         </tr>
         <tr>
-            <td><input type="submit" value="Register" onclick="sendForm()"></td>
+            <td><input id="registerButton" type="submit" value="Register" onclick="sendForm()"></td>
         </tr>
     </table>
     <input id="pass_img" type="hidden" name="pass_img">
@@ -57,13 +57,27 @@ window.onload=function show_imgs(){
             id_num++
         }
     }
+    document.getElementById("registerButton").disabled=true;
 }
 
 mass=[]
 
 function checkBlock(e){
     e.style.background = 'url(./static/image/22.png)';
-    mass.push(e.id);
+    if(mass.indexOf(e.id)==-1){
+        if(mass.length<3){
+        mass.push(e.id);
+        }
+    }
+    else{
+    mass.splice(mass.indexOf(e.id),1)
+    }
+    if(mass.length==3){
+       document.getElementById("registerButton").disabled=false;
+    }
+    else{
+    document.getElementById("registerButton").disabled=true;
+    }
 };
 
 function sendForm(){

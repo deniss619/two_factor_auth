@@ -43,9 +43,12 @@ var errorMark=0
     if (ajax.readyState == 4) {
         if (ajax.status == 200) {
             var newdiv = document.createElement("div");
-            newdiv.id='container';
-            newdiv.classList.add("container");
-            newdiv.style.background = "url(./static/"+ajax.responseText+")";
+            newdiv.id='containerForLogin';
+            newdiv.classList.add("containerForLogin");
+            var newimg = document.createElement("img");
+            newimg.src="data:image/png;base64,"+ajax.responseText;
+            document.body.appendChild(newimg);
+            newdiv.style.background = newimg;
             document.body.appendChild(newdiv);
             if(errorMark==1){
                 var hidden = document.getElementById("text");
