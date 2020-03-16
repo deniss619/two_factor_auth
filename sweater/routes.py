@@ -87,7 +87,7 @@ def generate_img(mass):
     g = 1
     for i in range(13):
         for j in range(13):
-            img = Image.open('./sweater/static/image\\' + str(random_mas[g]) + '.png')
+            img = Image.open('./sweater/static/image/' + str(random_mas[g]) + '.png')
             g += 1
             newimg.paste(img, (i * 38, j * 38))
     #newimg.show()
