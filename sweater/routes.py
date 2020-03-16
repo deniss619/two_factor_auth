@@ -1,6 +1,11 @@
+import base64
+
 from flask import render_template, redirect, url_for, request, flash, send_file, make_response
 from flask_login import login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
+
+import glob, random
+from PIL import Image
 
 from sweater import db, app
 from sweater.models import User
@@ -48,7 +53,7 @@ def firstFactor():
         if user and check_password_hash(user.password, password):
             login_user(user)
             try:
-                return 'zzz.png'
+                return generate_img(user.pass_img)
             except Exception as e:
                 return str(e)
 
@@ -61,7 +66,6 @@ def firstFactor():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    #URL='url(./templates/register.html)'
     login = request.form.get('login')
     password = request.form.get('password')
     password2 = request.form.get('password2')
