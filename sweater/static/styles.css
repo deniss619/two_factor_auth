@@ -1,20 +1,19 @@
 .box {
     width:38px;
     height:38px;
-    background:#f1f1f1;
     float:left;
-    margin: 0 0 0 0;
+    margin: 1px 1px 1px 1px;
     text-align:center;
 
 }
 .container {
-    width: 950px;
-    height: 608px;
+    width: 1000px;
+    height: 640px;
     position: relative;
     text-align:center;
 }
 
-.containerForLogin {
+#containerForLogin {
     width: 494px;
     height: 494px;
     position: relative;

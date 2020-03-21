@@ -36,20 +36,16 @@
     </table>
 </form>
 <button onclick="checkLoginPassword()">Send</button>
+<div id="containerForLogin">
+    <img id="loginImg">
+</div>
 <script>
 var ajax = new XMLHttpRequest();
 ajax.onreadystatechange = function() {
-var errorMark=0
+    var errorMark=0;
     if (ajax.readyState == 4) {
         if (ajax.status == 200) {
-            var newdiv = document.createElement("div");
-            newdiv.id='containerForLogin';
-            newdiv.classList.add("containerForLogin");
-            var newimg = document.createElement("img");
-            newimg.src="data:image/png;base64,"+ajax.responseText;
-            document.body.appendChild(newimg);
-            newdiv.style.background = newimg;
-            document.body.appendChild(newdiv);
+            document.getElementById("loginImg").src="data:image/png;base64,"+ajax.responseText;
             if(errorMark==1){
                 var hidden = document.getElementById("text");
                 hidden.classList.add("hidden");

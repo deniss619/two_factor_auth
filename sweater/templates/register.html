@@ -44,18 +44,14 @@
 
 <script>
 window.onload=function show_imgs(){
-    var id_num=1
     var container = document.getElementById("container");
-    for(var i =0; i < 20; i++){
-        for(var j = 0; j < 20; j++){
-            var newdiv = document.createElement("div");
-            newdiv.id=String(id_num);
-            newdiv.classList.add("box");
-            newdiv.setAttribute('onclick', 'checkBlock(this)');
-            container.appendChild(newdiv);
-            newdiv.style.background = "url(./static/image/"+String(id_num)+".png)";
-            id_num++
-        }
+    for(var i =1; i <= 400; i++){
+        var newdiv = document.createElement("div");
+        newdiv.id=String(i);
+        newdiv.classList.add("box");
+        newdiv.setAttribute('onclick', 'checkBlock(this)');
+        container.appendChild(newdiv);
+        newdiv.style.background = "url(./static/image/"+String(i)+".png)";
     }
     document.getElementById("registerButton").disabled=true;
 }
@@ -63,13 +59,14 @@ window.onload=function show_imgs(){
 mass=[]
 
 function checkBlock(e){
-    e.style.background = 'url(./static/image/22.png)';
     if(mass.indexOf(e.id)==-1){
         if(mass.length<3){
+        e.style.outline = "1px solid #008000";
         mass.push(e.id);
         }
     }
     else{
+    e.style.outline = "";
     mass.splice(mass.indexOf(e.id),1)
     }
     if(mass.length==3){
