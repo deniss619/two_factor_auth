@@ -1,6 +1,6 @@
 .box {
-    width:38px;
-    height:38px;
+    width:39px;
+    height:39px;
     float:left;
     margin: 1px 1px 1px 1px;
     text-align:center;
@@ -14,8 +14,8 @@
 }
 
 #containerForLogin {
-    width: 494px;
-    height: 494px;
+    width: 481px;
+    height: 481px;
     position: relative;
     text-align:center;
 }

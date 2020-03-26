@@ -22,43 +22,81 @@ def say_hello():
     return 'hello from server'
 
 
-@app.route('/', methods=['GET', 'POST'])
-def login_page():
-    login = request.form.get('login')
-    password = request.form.get('password')
-
-    if login and password:
-        user = User.query.filter_by(login=login).first()
-
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-
-            next_page = request.args.get('next')
-            return redirect(next_page or url_for('success'))
-        else:
-            flash('Ошибка в логине или пароле')
-    else:
-        flash('Введите логин и пароль')
-    return render_template('login.html')
+# @app.route('/', methods=['GET', 'POST'])
+# def login_page():
+#     login = request.form.get('login')
+#     password = request.form.get('password')
+#
+#     if login and password:
+#         user = User.query.filter_by(login=login).first()
+#
+#         if user and check_password_hash(user.password, password):
+#             login_user(user)
+#
+#             next_page = request.args.get('next')
+#             return redirect(next_page or url_for('success'))
+#         else:
+#             flash('Ошибка в логине или пароле')
+#     else:
+#         flash('Введите логин и пароль')
+#     return render_template('login.html')
 
 
 @app.route('/firstFactor', methods=['GET', 'POST'])
 def firstFactor():
     login = request.form.get('login')
     password = request.form.get('password')
-
-    if login and password:
+    coordinate = request.form.get("coordinate")
+    if coordinate is not None:
+        coordinateMass = []
+        buf = ''
+        for i in range(len(coordinate)):
+            if (coordinate[i] != ','):
+                buf += str(coordinate[i])
+            else:
+                coordinateMass.append(int(buf))
+                buf = ''
+        coordinateMass.append(int(buf))
+    if login and password and login!=' ' and password!=' ':
         user = User.query.filter_by(login=login).first()
-
+        if user and user!=' ':
+            if coordinate is None:
+                user.counter = 0
+                db.session.add(user)
+                db.session.commit()
         if user and check_password_hash(user.password, password):
-            login_user(user)
-            try:
-                return generate_img(user.pass_img)
-            except Exception as e:
-                return str(e)
-
+            if coordinate is not None:
+                if(coordinateMass[0] < 100 and coordinateMass[1] < 100):
+                    counter = user.counter + 1
+                    user.counter = counter
+                    db.session.add(user)
+                    db.session.commit()
+                else:
+                    user.counter = 0
+                    db.session.add(user)
+                    db.session.commit()
+            else:
+                user.counter = 0
+                db.session.add(user)
+                db.session.commit()
+            if (user.counter == 0):
+                try:
+                    return generate_img(user.pass_img)
+                except Exception as e:
+                    return str(e)
+            elif (0 < user.counter < 2):
+                try:
+                    return generate_img(user.pass_img)
+                except Exception as e:
+                    return str(e)
+            else:
+                login_user(user)
+                user.counter = 0
+                db.session.add(user)
+                db.session.commit()
+                return 'success'
         else:
-            return make_response('Ошибка в логине или пароле', 301)
+            return 'error'
     else:
         flash('Введите логин и пароль')
     return render_template('login.html')
@@ -115,7 +153,7 @@ def register():
             db.session.add(new_user)
             db.session.commit()
 
-            return redirect(url_for('login_page'))
+            return redirect(url_for('firstFactor'))
 
     return render_template('register.html')
 
@@ -127,12 +165,12 @@ def logout():
     password = request.form.get('password')
     if login and password:
         logout_user()
-    return redirect(url_for('login_page'))
+    return redirect(url_for('firstFactor'))
 
 
 @app.after_request
 def redirect_to_signin(response):
     if response.status_code == 401:
-        return redirect(url_for('login_page') + '?next=' + request.url)
+        return redirect(url_for('firstFactor') + '?next=' + request.url)
 
     return response

@@ -17,7 +17,8 @@
         </ul>
     {% endif %}
 {% endwith %}
-<div id='errorMessage'>
+<div>
+    <p id="errorMessage" class="hidden">Ошибка в логине или пароле</p>
 </div>
 <form method="POST" action="firstFactor" id="form">
     <table>
@@ -33,34 +34,53 @@
             <td><input type="submit" value="Login"></td>
             <td><a href="{{url_for('register')}}">Register</a> </td>
         </tr>
+        <tr>
+            <td><input id="coordinateOfClick" type="hidden" name="coordinateOfClick"></td>
+        </tr>
     </table>
 </form>
 <button onclick="checkLoginPassword()">Send</button>
-<div id="containerForLogin">
+<div id="containerForLogin" >
     <img id="loginImg">
 </div>
+
+<!--<div id="zatemnenie">-->
+<!--    <div id="okno" onclick = 'document.getElementById("form").submit();'>-->
+<!--&lt;!&ndash;        <form id = "myform" action="./index" method = "post" style = "display:none;">&ndash;&gt;-->
+<!--&lt;!&ndash;            <input id="coordinateOfClick" type="hidden" name="coordinateOfClick">&ndash;&gt;-->
+<!--&lt;!&ndash;        </form>&ndash;&gt;-->
+<!--        <div id="containerForLogin">-->
+<!--            <img id="loginImg">-->
+<!--        </div>-->
+<!--        <div onclick = 'document.getElementById("form").submit();'></div>-->
+<!--            <a href="#" class="close">Закрыть окно</a>-->
+<!--    </div>-->
+<!--</div>-->
 <script>
 var ajax = new XMLHttpRequest();
 ajax.onreadystatechange = function() {
     var errorMark=0;
     if (ajax.readyState == 4) {
         if (ajax.status == 200) {
-            document.getElementById("loginImg").src="data:image/png;base64,"+ajax.responseText;
-            if(errorMark==1){
-                var hidden = document.getElementById("text");
-                hidden.classList.add("hidden");
+            if(ajax.responseText=="success"){
+                location="success";
+        	}
+	        else if(ajax.responseText.slice(0,15)=="<!DOCTYPE html>"){
+	            location="firstFactor";
+	        }
+	        else if(ajax.responseText=='error'){
+	            document.getElementById("errorMessage").className='';
+	        }
+	        else{
+	            <!--            window.location.href = '#zatemnenie';-->
+    <!--            alert(ajax.getResponseHeader("content-type"))-->
+                document.getElementById("loginImg").src="data:image/png;base64,"+ajax.responseText;
+                document.getElementById("errorMessage").className='hidden';
             }
-        } else {
-        errorMark=1
-        var errorMessage = document.getElementById("errorMessage");
-        var text = document.createElement("p");
-        text.id='text';
-        text.innerHTML = 'Ошибка в логине или пароле'
-        errorMessage.appendChild(text);
-        }
-
-    }
+    	}
+	}
 }
+
 
 function checkLoginPassword(){
     params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value;
@@ -69,11 +89,58 @@ function checkLoginPassword(){
     ajax.send(params);
 
 }
-<!--function printMousePos(event) {-->
-<!--    console.log("clientX: " + event.offsetX + " - clientY: " + event.offsetY);-->
-<!--}-->
+function printMousePos(event) {
+    console.log("clientX: " + event.offsetX + " - clientY: " + event.offsetY);
+    mass=[event.offsetX,event.offsetY]
+    params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value + '&coordinate=' + mass.join();
+<!--    document.getElementById('coordinateOfClick').setAttribute('value', mass.join());-->
+    ajax.open('POST', 'firstFactor');
+    ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    ajax.send(params);
 
-<!--container.addEventListener("click", printMousePos);-->
+}
+
+document.getElementById("containerForLogin").addEventListener("click", printMousePos);
 </script>
+<style>
+  #zatemnenie {
+    background: rgba(102, 102, 102, 0.5);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+  }
+  #okno {
+    width: 600px;
+    height: 600px;
+    text-align: center;
+    padding: 15px;
+    border: 3px solid #0000cc;
+    border-radius: 10px;
+    color: #0000cc;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    background: #fff;
+  }
+  #zatemnenie:target {display: block;}
+  .close {
+    display: inline-block;
+    border: 1px solid #0000cc;
+    color: #0000cc;
+    padding: 0 12px;
+    margin: 10px;
+    text-decoration: none;
+    background: #f2f2f2;
+    font-size: 14pt;
+    cursor:pointer;
+  }
+  .close:hover {background: #e6e6ff;}
+</style>
 </body>
 </html>
