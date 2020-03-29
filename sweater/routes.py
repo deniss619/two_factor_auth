@@ -128,6 +128,7 @@ def generate_img(mass):
             img = Image.open('./sweater/static/image/' + str(random_mas[g]) + '.png')
             g += 1
             newimg.paste(img, (i * 38, j * 38))
+    #newimg.show()
     newimg.save("./sweater/static/user_img.png")
     image = open("./sweater/static/user_img.png", 'rb')
     img_read = image.read()
