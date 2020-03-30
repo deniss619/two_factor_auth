@@ -67,7 +67,7 @@ def firstFactor():
         if user and check_password_hash(user.password, password):
             if coordinate is not None:
                 if(coordinateMass[0] < 100 and coordinateMass[1] < 100):
-                    counter = user.counter + 1
+                    counter = int(user.counter) + 1
                     user.counter = counter
                     db.session.add(user)
                     db.session.commit()
@@ -79,12 +79,12 @@ def firstFactor():
                 user.counter = 0
                 db.session.add(user)
                 db.session.commit()
-            if (user.counter == 0):
+            if (int(user.counter) == 0):
                 try:
                     return generate_img(user.pass_img)
                 except Exception as e:
                     return str(e)
-            elif (0 < user.counter < 2):
+            elif (0 < int(user.counter) < 2):
                 try:
                     return generate_img(user.pass_img)
                 except Exception as e:
