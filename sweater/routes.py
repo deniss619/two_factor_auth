@@ -1,6 +1,6 @@
 import base64
 
-from flask import render_template, redirect, url_for, request, flash, send_file, make_response
+from flask import render_template, redirect, url_for, request, flash, make_response
 from flask_login import login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -48,26 +48,20 @@ def firstFactor():
     password = request.form.get('password')
     coordinate = request.form.get("coordinate")
     if coordinate is not None:
-        coordinateMass = []
-        buf = ''
-        for i in range(len(coordinate)):
-            if (coordinate[i] != ','):
-                buf += str(coordinate[i])
-            else:
-                coordinateMass.append(int(buf))
-                buf = ''
-        coordinateMass.append(int(buf))
-    if login and password and login!=' ' and password!=' ':
+        coordinateMass=make_mass(coordinate)
+    if(login and password and login != ' ' and password != ' '):
         user = User.query.filter_by(login=login).first()
-        if user and user!=' ':
+        if user and user != ' ':
             if coordinate is None:
                 user.counter = 0
                 db.session.add(user)
                 db.session.commit()
         if user and check_password_hash(user.password, password):
             if coordinate is not None:
-                if(coordinateMass[0] < 100 and coordinateMass[1] < 100):
-                    counter = int(user.counter) + 1
+                print(check_coordinates(coordinateMass, user.pass_img))
+                if (check_coordinates(coordinateMass, user.pass_img)==True):
+                    a= check_coordinates(coordinateMass, user.pass_img)
+                    counter = user.counter + 1
                     user.counter = counter
                     db.session.add(user)
                     db.session.commit()
@@ -75,16 +69,17 @@ def firstFactor():
                     user.counter = 0
                     db.session.add(user)
                     db.session.commit()
+
             else:
                 user.counter = 0
                 db.session.add(user)
                 db.session.commit()
-            if (int(user.counter) == 0):
+            if (user.counter == 0):
                 try:
                     return generate_img(user.pass_img)
                 except Exception as e:
                     return str(e)
-            elif (0 < int(user.counter) < 2):
+            elif (0 < user.counter < 2):
                 try:
                     return generate_img(user.pass_img)
                 except Exception as e:
@@ -105,20 +100,11 @@ def firstFactor():
 def generate_img(mass):
     images = glob.glob("./sweater/static/image/*.png")
 
-    newimg = Image.new('RGB', (494, 494))
+    newimg = Image.new('RGB', (481, 481))
     random_mas = random.sample(range(400), 400)
     random_mas[random_mas.index(0)] = 400
     strPassImg = '4,5,6'
-    mass = []
-    g = 0
-    buf = ''
-    for i in range(len(strPassImg)):
-        if (strPassImg[i] != ','):
-            buf += str(strPassImg[i])
-        else:
-            mass.append(int(buf))
-            buf = ''
-    mass.append(int(buf))
+    mass=make_mass(strPassImg)
     for i in range(len(mass)):
         if (random_mas.index(mass[i]) > 168):
             random_mas[random.sample(range(168), 1)[0]] = mass[i]
@@ -127,13 +113,67 @@ def generate_img(mass):
         for j in range(13):
             img = Image.open('./sweater/static/image/' + str(random_mas[g]) + '.png')
             g += 1
-            newimg.paste(img, (i * 38, j * 38))
-    #newimg.show()
+            newimg.paste(img, (i * 37, j * 37))
+
     newimg.save("./sweater/static/user_img.png")
     image = open("./sweater/static/user_img.png", 'rb')
     img_read = image.read()
-    img_encode=base64.encodestring(img_read)
+    img_encode = base64.encodebytes(img_read)
     return img_encode
+
+
+def make_mass(coordinate):
+    coordinateMass = []
+    buf = ''
+    for i in range(len(coordinate)):
+        if (coordinate[i] != ','):
+            buf += str(coordinate[i])
+        else:
+            coordinateMass.append(int(buf))
+            buf = ''
+    coordinateMass.append(int(buf))
+    return coordinateMass
+
+
+def check_coordinates(coordinates, user_img):
+    user_img = make_mass(user_img)
+    pass_img_1 = pass_coordinates(user_img[0])
+    pass_img_2 = pass_coordinates(user_img[1])
+    pass_img_3 = pass_coordinates(user_img[2])
+    a=(pass_img_1[0]-coordinates[0])*(pass_img_2[1]-pass_img_1[1])-(pass_img_2[0]-pass_img_1[0])*(pass_img_1[1]-coordinates[1])
+    b = (pass_img_2[0] - coordinates[0]) * (pass_img_3[1] - pass_img_2[1]) - (pass_img_3[0] - pass_img_2[0]) * (pass_img_2[1] - coordinates[1])
+    c = (pass_img_3[0] - coordinates[0]) * (pass_img_1[1] - pass_img_3[1]) - (pass_img_1[0] - pass_img_3[0]) * (pass_img_3[1] - coordinates[1])
+    if((a>=0 and b>=0 and c>=0) or (a<=0 and b<=0 and c<=0)):
+        return True
+
+
+def pass_coordinates(user_img):
+
+    for i in range(13):
+        for j in range(13):
+            image = Image.open("./sweater/static/user_img.png")
+            cutImg = image.crop((37 * j, ((37 * i)), 37 * j + 37, 37 * i + 37))
+            cutImg.save("./sweater/static/cut_img.png")
+            # cutImg.show()
+            image = open("./sweater/static/cut_img.png", 'rb')
+            img_read = image.read()
+            img_encode_1 = base64.encodebytes(img_read)
+
+            image = Image.open("./sweater/static/image/"+str(user_img)+".png")
+            # image.show()
+            image.thumbnail((37, 37))
+            image.save("./sweater/static/pass_img.png")
+            image = open("./sweater/static/pass_img.png", 'rb')
+            img_read = image.read()
+            img_encode_2 = base64.encodebytes(img_read)
+
+            if (img_encode_1 == img_encode_2):
+                mass=[((j*37)+16+1), ((i*37)+16+1)]
+                # print('ravni')
+                # print(i,j)
+                # print(((i)*37)+16+1)
+                # print(((j) * 37) + 16 + 1)
+                return mass
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -148,6 +188,7 @@ def register():
         elif password != password2:
             flash('Пароли не совпадают')
         else:
+            print(login)
             hash_pwd = generate_password_hash(password)
             new_user = User(login=login, password=hash_pwd, pass_img=pass_img)
             db.session.add(new_user)
