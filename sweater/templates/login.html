@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles.css')}}" >
 </head>
 <body>
-<h1>login page</h1>
+<h1>Авторизация</h1>
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         <ul class="flashes">
@@ -31,31 +31,18 @@
             <td><input type="password" name="password" id="password"></td>
         </tr>
         <tr>
-            <td><input type="submit" value="Login"></td>
-            <td><a href="{{url_for('register')}}">Register</a> </td>
-        </tr>
-        <tr>
             <td><input id="coordinateOfClick" type="hidden" name="coordinateOfClick"></td>
         </tr>
     </table>
 </form>
-<button onclick="checkLoginPassword()">Send</button>
+<tr>
+    <td><button onclick="checkLoginPassword()">Войти</button></td>
+    <td><a href="{{url_for('register')}}">Регистрация</a> </td>
+</tr>
 <div id="containerForLogin" >
     <img id="loginImg">
 </div>
 
-<!--<div id="zatemnenie">-->
-<!--    <div id="okno" onclick = 'document.getElementById("form").submit();'>-->
-<!--&lt;!&ndash;        <form id = "myform" action="./index" method = "post" style = "display:none;">&ndash;&gt;-->
-<!--&lt;!&ndash;            <input id="coordinateOfClick" type="hidden" name="coordinateOfClick">&ndash;&gt;-->
-<!--&lt;!&ndash;        </form>&ndash;&gt;-->
-<!--        <div id="containerForLogin">-->
-<!--            <img id="loginImg">-->
-<!--        </div>-->
-<!--        <div onclick = 'document.getElementById("form").submit();'></div>-->
-<!--            <a href="#" class="close">Закрыть окно</a>-->
-<!--    </div>-->
-<!--</div>-->
 <script>
 var ajax = new XMLHttpRequest();
 ajax.onreadystatechange = function() {
@@ -72,8 +59,6 @@ ajax.onreadystatechange = function() {
 	            document.getElementById("errorMessage").className='';
 	        }
 	        else{
-	            <!--            window.location.href = '#zatemnenie';-->
-    <!--            alert(ajax.getResponseHeader("content-type"))-->
                 document.getElementById("loginImg").src="data:image/png;base64,"+ajax.responseText;
                 document.getElementById("errorMessage").className='hidden';
             }
@@ -102,45 +87,5 @@ function printMousePos(event) {
 
 document.getElementById("containerForLogin").addEventListener("click", printMousePos);
 </script>
-<style>
-  #zatemnenie {
-    background: rgba(102, 102, 102, 0.5);
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: none;
-  }
-  #okno {
-    width: 600px;
-    height: 600px;
-    text-align: center;
-    padding: 15px;
-    border: 3px solid #0000cc;
-    border-radius: 10px;
-    color: #0000cc;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    margin: auto;
-    background: #fff;
-  }
-  #zatemnenie:target {display: block;}
-  .close {
-    display: inline-block;
-    border: 1px solid #0000cc;
-    color: #0000cc;
-    padding: 0 12px;
-    margin: 10px;
-    text-decoration: none;
-    background: #f2f2f2;
-    font-size: 14pt;
-    cursor:pointer;
-  }
-  .close:hover {background: #e6e6ff;}
-</style>
 </body>
 </html>

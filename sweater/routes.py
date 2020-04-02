@@ -4,7 +4,7 @@ from flask import render_template, redirect, url_for, request, flash, make_respo
 from flask_login import login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-import glob, random
+import random
 from PIL import Image
 
 from sweater import db, app
@@ -58,7 +58,6 @@ def firstFactor():
                 db.session.commit()
         if user and check_password_hash(user.password, password):
             if coordinate is not None:
-                print(check_coordinates(coordinateMass, user.pass_img))
                 if (check_coordinates(coordinateMass, user.pass_img)==True):
                     a= check_coordinates(coordinateMass, user.pass_img)
                     counter = user.counter + 1
@@ -98,16 +97,22 @@ def firstFactor():
 
 
 def generate_img(mass):
-    images = glob.glob("./sweater/static/image/*.png")
-
     newimg = Image.new('RGB', (481, 481))
     random_mas = random.sample(range(400), 400)
     random_mas[random_mas.index(0)] = 400
-    strPassImg = '4,5,6'
-    mass=make_mass(strPassImg)
-    for i in range(len(mass)):
-        if (random_mas.index(mass[i]) > 168):
-            random_mas[random.sample(range(168), 1)[0]] = mass[i]
+    mass = make_mass(mass)
+    fake_img = random.choices([0, 1], weights=[1, 10])
+    if fake_img[0] == 0:
+        lose_img = random.sample(range(len(mass)), len(mass))
+        for i in range(len(mass) - 1):
+            if (random_mas.index(mass[lose_img[0]]) > 168):
+                random_mas[random.sample(range(168), 1)[0]] = mass[lose_img[0]]
+                del lose_img[0]
+    else:
+        for i in range(len(mass)):
+            if (random_mas.index(mass[i]) > 168):
+                random_mas[random.sample(range(168), 1)[0]] = mass[i]
+
     g = 1
     for i in range(13):
         for j in range(13):
@@ -145,6 +150,8 @@ def check_coordinates(coordinates, user_img):
     c = (pass_img_3[0] - coordinates[0]) * (pass_img_1[1] - pass_img_3[1]) - (pass_img_1[0] - pass_img_3[0]) * (pass_img_3[1] - coordinates[1])
     if((a>=0 and b>=0 and c>=0) or (a<=0 and b<=0 and c<=0)):
         return True
+    else:
+        return False
 
 
 def pass_coordinates(user_img):
@@ -154,13 +161,11 @@ def pass_coordinates(user_img):
             image = Image.open("./sweater/static/user_img.png")
             cutImg = image.crop((37 * j, ((37 * i)), 37 * j + 37, 37 * i + 37))
             cutImg.save("./sweater/static/cut_img.png")
-            # cutImg.show()
             image = open("./sweater/static/cut_img.png", 'rb')
             img_read = image.read()
             img_encode_1 = base64.encodebytes(img_read)
 
             image = Image.open("./sweater/static/image/"+str(user_img)+".png")
-            # image.show()
             image.thumbnail((37, 37))
             image.save("./sweater/static/pass_img.png")
             image = open("./sweater/static/pass_img.png", 'rb')
@@ -169,10 +174,6 @@ def pass_coordinates(user_img):
 
             if (img_encode_1 == img_encode_2):
                 mass=[((j*37)+16+1), ((i*37)+16+1)]
-                # print('ravni')
-                # print(i,j)
-                # print(((i)*37)+16+1)
-                # print(((j) * 37) + 16 + 1)
                 return mass
 
 
@@ -188,14 +189,15 @@ def register():
         elif password != password2:
             flash('Пароли не совпадают')
         else:
-            print(login)
-            hash_pwd = generate_password_hash(password)
-            new_user = User(login=login, password=hash_pwd, pass_img=pass_img)
-            db.session.add(new_user)
-            db.session.commit()
-
-            return redirect(url_for('firstFactor'))
-
+            user = User.query.filter_by(login=login).first()
+            if user is None:
+                hash_pwd = generate_password_hash(password)
+                new_user = User(login=login, password=hash_pwd, pass_img=pass_img)
+                db.session.add(new_user)
+                db.session.commit()
+                return redirect(url_for('firstFactor'))
+            else:
+                flash('Такой пользователь уже существует')
     return render_template('register.html')
 
 
