@@ -7,16 +7,21 @@
     <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles.css')}}" >
 </head>
 <body>
+<div id="radio">
+    <input type="radio" onMouseDown="this.isChecked=this.checked;" onClick="this.checked=!this.isChecked;" id="checkMod" value="0"/>Быстрый режим
+</div>
 <h1>Авторизация</h1>
+
 {% with messages = get_flashed_messages() %}
     {% if messages %}
         <ul class="flashes">
         {% for message in messages %}
-            <li>{{message }}</li>
+            <li id="flash">{{message }}</li>
         {% endfor %}
         </ul>
     {% endif %}
 {% endwith %}
+<div id="firstFactorContainer">
 <div>
     <p id="errorMessage" class="hidden">Ошибка в логине или пароле</p>
 </div>
@@ -39,11 +44,15 @@
     <td><button onclick="checkLoginPassword()">Войти</button></td>
     <td><a href="{{url_for('register')}}">Регистрация</a> </td>
 </tr>
+</div>
 <div id="containerForLogin" >
     <img id="loginImg">
 </div>
 
 <script>
+function checkMod(){
+
+}
 var ajax = new XMLHttpRequest();
 ajax.onreadystatechange = function() {
     var errorMark=0;
@@ -61,6 +70,8 @@ ajax.onreadystatechange = function() {
 	        else{
                 document.getElementById("loginImg").src="data:image/png;base64,"+ajax.responseText;
                 document.getElementById("errorMessage").className='hidden';
+                document.getElementById('firstFactorContainer').className='hidden';
+                document.getElementById('flash').className='hidden';
             }
     	}
 	}
@@ -68,16 +79,19 @@ ajax.onreadystatechange = function() {
 
 
 function checkLoginPassword(){
-    params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value;
+    params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value
+    + '&fastMod=' + document.getElementById('checkMod').checked;
     ajax.open('POST', 'firstFactor');
     ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     ajax.send(params);
+
 
 }
 function printMousePos(event) {
     console.log("clientX: " + event.offsetX + " - clientY: " + event.offsetY);
     mass=[event.offsetX,event.offsetY]
-    params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value + '&coordinate=' + mass.join();
+    params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value
+    + '&coordinate=' + mass.join() + '&fastMod=' + document.getElementById('checkMod').checked;
 <!--    document.getElementById('coordinateOfClick').setAttribute('value', mass.join());-->
     ajax.open('POST', 'firstFactor');
     ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');

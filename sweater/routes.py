@@ -47,9 +47,10 @@ def firstFactor():
     login = request.form.get('login')
     password = request.form.get('password')
     coordinate = request.form.get("coordinate")
+    fastMod = request.form.get("fastMod")
     if coordinate is not None:
         coordinateMass=make_mass(coordinate)
-    if(login and password and login != ' ' and password != ' '):
+    if login and password and login != ' ' and password != ' ':
         user = User.query.filter_by(login=login).first()
         if user and user != ' ':
             if coordinate is None:
@@ -58,8 +59,7 @@ def firstFactor():
                 db.session.commit()
         if user and check_password_hash(user.password, password):
             if coordinate is not None:
-                if (check_coordinates(coordinateMass, user.pass_img)==True):
-                    a= check_coordinates(coordinateMass, user.pass_img)
+                if check_coordinates(coordinateMass, user, fastMod):
                     counter = user.counter + 1
                     user.counter = counter
                     db.session.add(user)
@@ -75,12 +75,12 @@ def firstFactor():
                 db.session.commit()
             if (user.counter == 0):
                 try:
-                    return generate_img(user.pass_img)
+                    return generate_img(user)
                 except Exception as e:
                     return str(e)
             elif (0 < user.counter < 2):
                 try:
-                    return generate_img(user.pass_img)
+                    return generate_img(user)
                 except Exception as e:
                     return str(e)
             else:
@@ -96,12 +96,13 @@ def firstFactor():
     return render_template('login.html')
 
 
-def generate_img(mass):
+def generate_img(user):
     newimg = Image.new('RGB', (481, 481))
     random_mas = random.sample(range(400), 400)
     random_mas[random_mas.index(0)] = 400
-    mass = make_mass(mass)
+    mass = make_mass(user.pass_img)
     fake_img = random.choices([0, 1], weights=[1, 10])
+    coordinates = []
     if fake_img[0] == 0:
         lose_img = random.sample(range(len(mass)), len(mass))
         for i in range(len(mass) - 1):
@@ -112,19 +113,34 @@ def generate_img(mass):
         for i in range(len(mass)):
             if (random_mas.index(mass[i]) > 168):
                 random_mas[random.sample(range(168), 1)[0]] = mass[i]
-
+    coordinates=''
     g = 1
     for i in range(13):
         for j in range(13):
             img = Image.open('./sweater/static/image/' + str(random_mas[g]) + '.png')
             g += 1
             newimg.paste(img, (i * 37, j * 37))
-
-    newimg.save("./sweater/static/user_img.png")
-    image = open("./sweater/static/user_img.png", 'rb')
-    img_read = image.read()
-    img_encode = base64.encodebytes(img_read)
-    return img_encode
+            for z in range(len(mass)):
+                if random_mas[g-1] == mass[z]:
+                    coordinates+=str((i*37)+18+1)+','+str((j*37)+18+1)+','
+    coordinates = coordinates[0:-1]
+    user.coordinates = coordinates
+    db.session.add(user)
+    db.session.commit()
+    coordinates_mass = make_mass(user.coordinates)
+    pass_img_1 = make_mass_for_coordinate(coordinates_mass, 0)
+    pass_img_2 = make_mass_for_coordinate(coordinates_mass, 1)
+    pass_img_3 = make_mass_for_coordinate(coordinates_mass, 2)
+    S = 0.5*(abs((pass_img_2[0] - pass_img_1[0])*(pass_img_3[1] - pass_img_1[1]) -
+              (pass_img_3[0] - pass_img_1[0]) * (pass_img_2[1] - pass_img_1[1])))
+    if 50 > S > 180:
+        return generate_img(user)
+    else:
+        newimg.save("./sweater/static/user_img.png")
+        image = open("./sweater/static/user_img.png", 'rb')
+        img_read = image.read()
+        img_encode = base64.encodebytes(img_read)
+        return img_encode
 
 
 def make_mass(coordinate):
@@ -140,18 +156,40 @@ def make_mass(coordinate):
     return coordinateMass
 
 
-def check_coordinates(coordinates, user_img):
-    user_img = make_mass(user_img)
-    pass_img_1 = pass_coordinates(user_img[0])
-    pass_img_2 = pass_coordinates(user_img[1])
-    pass_img_3 = pass_coordinates(user_img[2])
-    a=(pass_img_1[0]-coordinates[0])*(pass_img_2[1]-pass_img_1[1])-(pass_img_2[0]-pass_img_1[0])*(pass_img_1[1]-coordinates[1])
-    b = (pass_img_2[0] - coordinates[0]) * (pass_img_3[1] - pass_img_2[1]) - (pass_img_3[0] - pass_img_2[0]) * (pass_img_2[1] - coordinates[1])
-    c = (pass_img_3[0] - coordinates[0]) * (pass_img_1[1] - pass_img_3[1]) - (pass_img_1[0] - pass_img_3[0]) * (pass_img_3[1] - coordinates[1])
-    if((a>=0 and b>=0 and c>=0) or (a<=0 and b<=0 and c<=0)):
-        return True
+def make_mass_for_coordinate(coordinate, g):
+    res = []
+    counter = 0
+    for i in range(int(len(coordinate) / 2)):
+        buf = []
+        buf.append(coordinate[counter])
+        buf.append(coordinate[counter + 1])
+        counter += 2
+        res.append(buf)
+    if len(res)>g:
+        return res[g]
+
+
+def check_coordinates(coordinates, user, fastMod):
+    if fastMod == 'true':
+        coordinates_mass = make_mass(user.coordinates)
+        pass_img_1 = make_mass_for_coordinate(coordinates_mass, 0)
+        pass_img_2 = make_mass_for_coordinate(coordinates_mass, 1)
+        pass_img_3 = make_mass_for_coordinate(coordinates_mass, 2)
     else:
-        return False
+        user_img = make_mass(user.pass_img)
+        pass_img_1 = pass_coordinates(user_img[0])
+        pass_img_2 = pass_coordinates(user_img[1])
+        pass_img_3 = pass_coordinates(user_img[2])
+    if pass_img_1 and pass_img_2 and pass_img_3:
+        a=(pass_img_1[0]-coordinates[0])*(pass_img_2[1]-pass_img_1[1])-(pass_img_2[0]-pass_img_1[0])*(pass_img_1[1]-coordinates[1])
+        b = (pass_img_2[0] - coordinates[0]) * (pass_img_3[1] - pass_img_2[1]) - (pass_img_3[0] - pass_img_2[0]) * (pass_img_2[1] - coordinates[1])
+        c = (pass_img_3[0] - coordinates[0]) * (pass_img_1[1] - pass_img_3[1]) - (pass_img_1[0] - pass_img_3[0]) * (pass_img_3[1] - coordinates[1])
+        if((a>=0 and b>=0 and c>=0) or (a<=0 and b<=0 and c<=0)):
+            return True
+        else:
+            return False
+    else:
+        return True
 
 
 def pass_coordinates(user_img):
@@ -159,7 +197,7 @@ def pass_coordinates(user_img):
     for i in range(13):
         for j in range(13):
             image = Image.open("./sweater/static/user_img.png")
-            cutImg = image.crop((37 * j, ((37 * i)), 37 * j + 37, 37 * i + 37))
+            cutImg = image.crop((37 * j, 37 * i, 37 * j + 37, 37 * i + 37))
             cutImg.save("./sweater/static/cut_img.png")
             image = open("./sweater/static/cut_img.png", 'rb')
             img_read = image.read()
@@ -173,7 +211,7 @@ def pass_coordinates(user_img):
             img_encode_2 = base64.encodebytes(img_read)
 
             if (img_encode_1 == img_encode_2):
-                mass=[((j*37)+16+1), ((i*37)+16+1)]
+                mass=[(j*37)+18+1, (i*37)+18+1]
                 return mass
 
 
