@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="shortcut icon" href="./static/logo.jpg" type="image/jpg">
+    <link rel="icon" href="./static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles.css')}}" >
 </head>
 <body>
@@ -48,11 +48,62 @@
 <div id="containerForLogin" >
     <img id="loginImg">
 </div>
-
-<script>
-function checkMod(){
-
+<div id="my_modal" class="modal">
+<div class="modal_content">
+  <span class="close_modal_window">×</span>
+  <p>Вы превысили число ошибочных попыток входа и нам пришлось заблокировать Ваш аккаунт. Что бы снять блокировку,
+      воспользуйтесь процедурой восстановления доступа.</p>
+    <button onclick="recovery()">Восстановить доступ</button>
+    <button onclick="back_to_auth()">Вернуться к авторизации</button>
+</div>
+</div>
+<style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    z-index: 1000;
 }
+.modal .modal_content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    z-index: 99999;
+}
+.modal .modal_content .close_modal_window {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+</style>
+<script>
+ var modal = document.getElementById("my_modal");
+ var btn = document.getElementById("btn_modal_window");
+ var span = document.getElementsByClassName("close_modal_window")[0];
+
+ span.onclick = function () {
+    modal.style.display = "none";
+ }
+
+ window.onclick = function (event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+function back_to_auth(){
+    location="firstFactor";
+}
+
 var ajax = new XMLHttpRequest();
 ajax.onreadystatechange = function() {
     var errorMark=0;
@@ -65,7 +116,13 @@ ajax.onreadystatechange = function() {
 	            location="firstFactor";
 	        }
 	        else if(ajax.responseText=='error'){
+	            document.getElementById("errorMessage").innerHTML='Ошибка в логине или пароле';
 	            document.getElementById("errorMessage").className='';
+	        }
+	        else if(ajax.responseText=='banned'){
+	            modal.style.display = "block";
+<!--	            document.getElementById("errorMessage").innerHTML='бан';-->
+<!--	            document.getElementById("errorMessage").className='';-->
 	        }
 	        else{
                 document.getElementById("loginImg").src="data:image/png;base64,"+ajax.responseText;

@@ -10,6 +10,8 @@ class User(db.Model, UserMixin):
     pass_img = db.Column(db.String(255), nullable=False)
     counter = db.Column(db.Integer, default=0)
     coordinates = db.Column(db.String(128))
+    banned = db.Column(db.Integer, default=0)
+    false_click_counter = db.Column(db.Integer, default=0)
 
 
 class Image(db.Model, UserMixin):

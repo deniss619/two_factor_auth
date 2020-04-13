@@ -55,42 +55,56 @@ def firstFactor():
         if user and user != ' ':
             if coordinate is None:
                 user.counter = 0
+                user.false_click_counter = 0
                 db.session.add(user)
                 db.session.commit()
-        if user and check_password_hash(user.password, password):
-            if coordinate is not None:
-                if check_coordinates(coordinateMass, user, fastMod):
-                    counter = user.counter + 1
-                    user.counter = counter
-                    db.session.add(user)
-                    db.session.commit()
+        # user.banned = 0
+        # db.session.add(user)
+        # db.session.commit()
+        if (int(user.banned)!=1):
+            if user and check_password_hash(user.password, password):
+                if coordinate is not None:
+                    if check_coordinates(coordinateMass, user, fastMod):
+                        user.counter +=1
+                        db.session.add(user)
+                        db.session.commit()
+                    else:
+                        user.counter = 0
+                        user.false_click_counter+=1
+                        db.session.add(user)
+                        db.session.commit()
+
+                    if(user.false_click_counter>5):
+                        user.banned=1
+                        db.session.add(user)
+                        db.session.commit()
+                        return 'banned'
+
                 else:
                     user.counter = 0
                     db.session.add(user)
                     db.session.commit()
-
+                if (user.counter == 0):
+                    try:
+                        return generate_img(user)
+                    except Exception as e:
+                        print(user.counter,user)
+                        return str(e)
+                elif (0 < user.counter < 2):
+                    try:
+                        return generate_img(user)
+                    except Exception as e:
+                        return str(e)
+                else:
+                    login_user(user)
+                    user.counter = 0
+                    db.session.add(user)
+                    db.session.commit()
+                    return 'success'
             else:
-                user.counter = 0
-                db.session.add(user)
-                db.session.commit()
-            if (user.counter == 0):
-                try:
-                    return generate_img(user)
-                except Exception as e:
-                    return str(e)
-            elif (0 < user.counter < 2):
-                try:
-                    return generate_img(user)
-                except Exception as e:
-                    return str(e)
-            else:
-                login_user(user)
-                user.counter = 0
-                db.session.add(user)
-                db.session.commit()
-                return 'success'
+                return 'error'
         else:
-            return 'error'
+            return 'banned'
     else:
         flash('Введите логин и пароль')
     return render_template('login.html')
@@ -102,7 +116,6 @@ def generate_img(user):
     random_mas[random_mas.index(0)] = 400
     mass = make_mass(user.pass_img)
     fake_img = random.choices([0, 1], weights=[1, 10])
-    coordinates = []
     if fake_img[0] == 0:
         lose_img = random.sample(range(len(mass)), len(mass))
         for i in range(len(mass) - 1):
@@ -128,13 +141,20 @@ def generate_img(user):
     db.session.add(user)
     db.session.commit()
     coordinates_mass = make_mass(user.coordinates)
-    pass_img_1 = make_mass_for_coordinate(coordinates_mass, 0)
-    pass_img_2 = make_mass_for_coordinate(coordinates_mass, 1)
-    pass_img_3 = make_mass_for_coordinate(coordinates_mass, 2)
-    S = 0.5*(abs((pass_img_2[0] - pass_img_1[0])*(pass_img_3[1] - pass_img_1[1]) -
-              (pass_img_3[0] - pass_img_1[0]) * (pass_img_2[1] - pass_img_1[1])))
-    if 50 > S > 180:
-        return generate_img(user)
+    if(fake_img[0]==1):
+        pass_img_1 = make_mass_for_coordinate(coordinates_mass, 0)
+        pass_img_2 = make_mass_for_coordinate(coordinates_mass, 1)
+        pass_img_3 = make_mass_for_coordinate(coordinates_mass, 2)
+        S = 0.5*(abs((pass_img_2[0] - pass_img_1[0])*(pass_img_3[1] - pass_img_1[1]) -
+                  (pass_img_3[0] - pass_img_1[0]) * (pass_img_2[1] - pass_img_1[1])))
+        if S<9945 or S>59674:
+            return generate_img(user)
+        else:
+            newimg.save("./sweater/static/user_img.png")
+            image = open("./sweater/static/user_img.png", 'rb')
+            img_read = image.read()
+            img_encode = base64.encodebytes(img_read)
+            return img_encode
     else:
         newimg.save("./sweater/static/user_img.png")
         image = open("./sweater/static/user_img.png", 'rb')
@@ -230,7 +250,7 @@ def register():
             user = User.query.filter_by(login=login).first()
             if user is None:
                 hash_pwd = generate_password_hash(password)
-                new_user = User(login=login, password=hash_pwd, pass_img=pass_img)
+                new_user = User(login=login, password=hash_pwd, pass_img=pass_img, banned=0)
                 db.session.add(new_user)
                 db.session.commit()
                 return redirect(url_for('firstFactor'))
