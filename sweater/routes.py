@@ -90,7 +90,7 @@ def firstFactor():
                     except Exception as e:
                         print(user.counter,user)
                         return str(e)
-                elif (0 < user.counter < 2):
+                elif (0 < user.counter < 5):
                     try:
                         return generate_img(user)
                     except Exception as e:
@@ -115,17 +115,30 @@ def generate_img(user):
     random_mas = random.sample(range(400), 400)
     random_mas[random_mas.index(0)] = 400
     mass = make_mass(user.pass_img)
+    mass=random.sample(mass, 3)
     fake_img = random.choices([0, 1], weights=[1, 10])
+    zone = make_mass(user.zone)
+    probability =  make_mass(user.probability)
+    for i in range(len(zone)):
+        check = random.choices([0, 1], weights=[probability[i], 10])
+        if (check[0] == 0 and random_mas.index(zone[i]) > 168):
+            position1 = random.sample(range(168), 1)[0]
+            position2 = random_mas.index(zone[i])
+            random_mas[position1], random_mas[position2] = random_mas[position2], random_mas[position1]
     if fake_img[0] == 0:
         lose_img = random.sample(range(len(mass)), len(mass))
         for i in range(len(mass) - 1):
             if (random_mas.index(mass[lose_img[0]]) > 168):
-                random_mas[random.sample(range(168), 1)[0]] = mass[lose_img[0]]
+                position1 = random.sample(range(168), 1)[0]
+                position2 = random_mas.index(mass[lose_img[i]])
+                random_mas[position1], random_mas[position2] = random_mas[position2], random_mas[position1]
                 del lose_img[0]
     else:
         for i in range(len(mass)):
             if (random_mas.index(mass[i]) > 168):
-                random_mas[random.sample(range(168), 1)[0]] = mass[i]
+                position1 = random.sample(range(168), 1)[0]
+                position2 = random_mas.index(mass[i])
+                random_mas[position1], random_mas[position2] = random_mas[position2], random_mas[position1]
     coordinates=''
     g = 1
     for i in range(13):
@@ -134,7 +147,7 @@ def generate_img(user):
             g += 1
             newimg.paste(img, (i * 37, j * 37))
             for z in range(len(mass)):
-                if random_mas[g-1] == mass[z]:
+                if random_mas[g] == mass[z]:
                     coordinates+=str((i*37)+18+1)+','+str((j*37)+18+1)+','
     coordinates = coordinates[0:-1]
     user.coordinates = coordinates
@@ -205,8 +218,10 @@ def check_coordinates(coordinates, user, fastMod):
         b = (pass_img_2[0] - coordinates[0]) * (pass_img_3[1] - pass_img_2[1]) - (pass_img_3[0] - pass_img_2[0]) * (pass_img_2[1] - coordinates[1])
         c = (pass_img_3[0] - coordinates[0]) * (pass_img_1[1] - pass_img_3[1]) - (pass_img_1[0] - pass_img_3[0]) * (pass_img_3[1] - coordinates[1])
         if((a>=0 and b>=0 and c>=0) or (a<=0 and b<=0 and c<=0)):
+            print(True)
             return True
         else:
+            print(False)
             return False
     else:
         return True
@@ -250,13 +265,30 @@ def register():
             user = User.query.filter_by(login=login).first()
             if user is None:
                 hash_pwd = generate_password_hash(password)
-                new_user = User(login=login, password=hash_pwd, pass_img=pass_img, banned=0)
+
+                passImg=make_mass(pass_img)
+                zone = ''
+                probability = ''
+                for i in range(50):
+                    probability+=str(random.randint(22, 30))+','
+                    zone+=str(gen_zone(passImg))+','
+                zone=zone[0:-1]
+                probability=probability[0:-1]
+                new_user = User(login=login, password=hash_pwd, pass_img=pass_img, banned=0, zone=zone, probability=probability)
                 db.session.add(new_user)
                 db.session.commit()
                 return redirect(url_for('firstFactor'))
             else:
                 flash('Такой пользователь уже существует')
     return render_template('register.html')
+
+
+def gen_zone(pass_img):
+    rand_num = random.sample(range(401), 1)
+    if rand_num[0] == 0 or rand_num[0] in pass_img:
+        return gen_zone(pass_img)
+    else:
+        return rand_num[0]
 
 
 @app.route('/logout', methods=['GET', 'POST'])
