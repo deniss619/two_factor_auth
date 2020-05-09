@@ -61,7 +61,7 @@ mass=[]
 
 function checkBlock(e){
     if(mass.indexOf(e.id)==-1){
-        if(mass.length<3){
+        if(mass.length<5){
         e.style.outline = "1px solid #008000";
         mass.push(e.id);
         }
@@ -70,7 +70,7 @@ function checkBlock(e){
     e.style.outline = "";
     mass.splice(mass.indexOf(e.id),1)
     }
-    if(mass.length==3){
+    if(mass.length==5){
        document.getElementById("registerButton").disabled=false;
     }
     else{
