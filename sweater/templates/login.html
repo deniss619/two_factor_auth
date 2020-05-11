@@ -121,8 +121,7 @@ ajax.onreadystatechange = function() {
 	        }
 	        else if(ajax.responseText=='banned'){
 	            modal.style.display = "block";
-<!--	            document.getElementById("errorMessage").innerHTML='бан';-->
-<!--	            document.getElementById("errorMessage").className='';-->
+
 	        }
 	        else{
                 document.getElementById("loginImg").src="data:image/png;base64,"+ajax.responseText;
@@ -149,7 +148,6 @@ function printMousePos(event) {
     mass=[event.offsetX,event.offsetY]
     params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value
     + '&coordinate=' + mass.join() + '&fastMod=' + document.getElementById('checkMod').checked;
-<!--    document.getElementById('coordinateOfClick').setAttribute('value', mass.join());-->
     ajax.open('POST', 'firstFactor');
     ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     ajax.send(params);
