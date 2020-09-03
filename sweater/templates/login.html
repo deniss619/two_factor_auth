@@ -5,11 +5,15 @@
     <title>Login</title>
     <link rel="icon" href="./static/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles.css')}}" >
+    <script async src="{{url_for('static', filename='scriptForLogin.js')}}" ></script>
 </head>
 <body>
-<div id="radio">
-    <input type="radio" onMouseDown="this.isChecked=this.checked;" onClick="this.checked=!this.isChecked;" id="checkMod" value="0"/>Быстрый режим
+
+<div id="radio" class="hidden">
+    <input type="radio" onMouseDown="this.isChecked=this.checked;" onClick="this.checked=!this.isChecked;" id="checkMod" value="0" checked/>Быстрый режим
 </div>
+
+<div id="firstFactorContainer">
 <h1>Авторизация</h1>
 
 {% with messages = get_flashed_messages() %}
@@ -21,7 +25,7 @@
         </ul>
     {% endif %}
 {% endwith %}
-<div id="firstFactorContainer">
+
 <div>
     <p id="errorMessage" class="hidden">Ошибка в логине или пароле</p>
 </div>
@@ -45,6 +49,23 @@
     <td><a href="{{url_for('register')}}">Регистрация</a> </td>
 </tr>
 </div>
+<form id="formForCheckMethod" class="hidden">
+    <h2>Выберите метод аутентификации</h2>
+        <p>
+            <input name="method" type="radio" value="triangle" />Метод треугольника
+        </p>
+        <p>
+            <input name="method" type="radio" value="diagonal" />Метод диагоналей
+        </p>
+        <p>
+            <input name="method" type="radio" value="frame" />Метод подвижной рамки
+        </p>
+        <p>
+            <button id="submitMethod">Подтвердить</button>
+        </p>
+</form>
+
+
 <div id="containerForLogin" >
     <img id="loginImg">
 </div>
@@ -57,104 +78,7 @@
     <button onclick="back_to_auth()">Вернуться к авторизации</button>
 </div>
 </div>
-<style>
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    z-index: 1000;
-}
-.modal .modal_content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    z-index: 99999;
-}
-.modal .modal_content .close_modal_window {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-</style>
-<script>
- var modal = document.getElementById("my_modal");
- var btn = document.getElementById("btn_modal_window");
- var span = document.getElementsByClassName("close_modal_window")[0];
-
- span.onclick = function () {
-    modal.style.display = "none";
- }
-
- window.onclick = function (event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-}
-function back_to_auth(){
-    location="firstFactor";
-}
-
-var ajax = new XMLHttpRequest();
-ajax.onreadystatechange = function() {
-    var errorMark=0;
-    if (ajax.readyState == 4) {
-        if (ajax.status == 200) {
-            if(ajax.responseText=="success"){
-                location="success";
-        	}
-	        else if(ajax.responseText.slice(0,15)=="<!DOCTYPE html>"){
-	            location="firstFactor";
-	        }
-	        else if(ajax.responseText=='error'){
-	            document.getElementById("errorMessage").innerHTML='Ошибка в логине или пароле';
-	            document.getElementById("errorMessage").className='';
-	        }
-	        else if(ajax.responseText=='banned'){
-	            modal.style.display = "block";
-
-	        }
-	        else{
-                document.getElementById("loginImg").src="data:image/png;base64,"+ajax.responseText;
-                document.getElementById("errorMessage").className='hidden';
-                document.getElementById('firstFactorContainer').className='hidden';
-                document.getElementById('flash').className='hidden';
-            }
-    	}
-	}
-}
 
 
-function checkLoginPassword(){
-    params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value
-    + '&fastMod=' + document.getElementById('checkMod').checked;
-    ajax.open('POST', 'firstFactor');
-    ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    ajax.send(params);
-
-
-}
-function printMousePos(event) {
-    console.log("clientX: " + event.offsetX + " - clientY: " + event.offsetY);
-    mass=[event.offsetX,event.offsetY]
-    params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value
-    + '&coordinate=' + mass.join() + '&fastMod=' + document.getElementById('checkMod').checked;
-    ajax.open('POST', 'firstFactor');
-    ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    ajax.send(params);
-
-}
-
-document.getElementById("containerForLogin").addEventListener("click", printMousePos);
-</script>
 </body>
 </html>
