@@ -4,18 +4,20 @@ import random
 
 from sweater import db, app
 
+
 def make_mass_for_img(user, method=None):
     # генерирует массив из которого будет создано изображение
+    img_size = 13
     random_mas = random.sample(range(400), 400)
     random_mas[random_mas.index(0)] = 400
     if method == 1:
         imgAmount = 4
     else:
         imgAmount = 3
-        fake_img = random.choices([0, 1], weights=[1, 10])
     for i in make_mass(user.pass_img):
         del random_mas[random_mas.index(i)]
-    random_mas = random.sample(random_mas, 169)
+    random_mas = random.sample(random_mas, img_size ** 2)
+    print(len(random_mas))
     password_images = random.sample(make_mass(user.pass_img), len(make_mass(user.pass_img)))
     zone = make_mass(user.zone)
     probability = make_mass(user.probability)
@@ -23,29 +25,29 @@ def make_mass_for_img(user, method=None):
         # в массив добавляются числа с повышенной вероятностью выпадения
         check = random.choices([0, 1], weights=[probability[i], 10])
         if (check[0] == 0 and zone[i] not in random_mas):
-            random_mas[random.randint(0, 168)] = zone[i]
+            random_mas[random.randint(0, img_size ** 2 - 1)] = zone[i]
     pass_img_coordinates = []
-    if method != 1 and fake_img[0] == 0:
-        checker = random.randint(1, 2)
-    else:
-        checker = 0
-    for i in range(imgAmount - checker):
+
+    for i in range(imgAmount):
         # в массив добавляются парольные изображения
-        position = random.randint(0, 168)
+        position = random.randint(0, img_size ** 2)
         if position not in pass_img_coordinates:
             pass_img_coordinates.append(position)
             random_mas[position] = password_images[i]
+        else:
+            i -= 1
     return random_mas
 
 
 def generate_img(user, method=None):
-    newimg = Image.new('RGB', (481, 481))
+    img_size = 13
+    newimg = Image.new('RGB', (img_size * 37, img_size * 37))
     random_mas = make_mass_for_img(user, method)
     password_img_mass = make_mass(user.pass_img)
     coordinates = ''
     g = 0
-    for i in range(13):
-        for j in range(13):
+    for i in range(img_size):
+        for j in range(img_size):
             img = Image.open('./sweater/static/image/' + str(random_mas[g]) + '.png')
             newimg.paste(img, (i * 37, j * 37))
             for z in password_img_mass:
@@ -244,6 +246,7 @@ def pass_coordinates(user_img):
             if (img_encode_1 == img_encode_2):
                 mass = [(j * 37) + 18 + 1, (i * 37) + 18 + 1]
                 return mass
+
 
 def gen_zone(pass_img):
     rand_num = random.sample(range(401), 1)
