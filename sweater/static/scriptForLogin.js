@@ -178,7 +178,7 @@ function shiftLeft(){
 
 function sendImgMass(){
     params='login=' + document.getElementById('login').value + '&password=' + document.getElementById('password').value
-    + '&coordinate=' + mass + '&method=' + method;
+    + '&coordinate=' + mass + '&method=' + method + '&fastMod=' + document.getElementById('checkMod').checked;
     document.getElementById("frame").remove();
     document.getElementById("passImg").remove();
     ajax.open('POST', '/secondFactor');

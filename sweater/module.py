@@ -62,34 +62,31 @@ def generate_img(user, method=None):
     user.coordinates = coordinates
     db.session.add(user)
     db.session.commit()
-    if method != 1:
+    if method == 1:
         return triangle_img(user, newimg)
-    else:
+    elif method == 2:
         return diagonal_img(user, newimg)
+    elif method == 3:
+        newimg.save("./sweater/static/user_img.png")
+        image = open("./sweater/static/user_img.png", 'rb').read()
+        img_encode = base64.encodebytes(image)
+        return img_encode
 
 
 def triangle_img(user, newimg):
     coordinates_mass = list(map(int, user.coordinates.replace('{', '').replace('}', '').split(',')))
-    if len(coordinates_mass) < 6:
-        newimg.save("./sweater/static/user_img.png")
-        image = open("./sweater/static/user_img.png", 'rb')
-        img_read = image.read()
-        img_encode = base64.encodebytes(img_read)
-        return img_encode
+    pass_img_1 = [coordinates_mass[0], coordinates_mass[1]]
+    pass_img_2 = [coordinates_mass[2], coordinates_mass[3]]
+    pass_img_3 = [coordinates_mass[4], coordinates_mass[5]]
+    S = 0.5 * (abs((pass_img_2[0] - pass_img_1[0]) * (pass_img_3[1] - pass_img_1[1]) -
+                   (pass_img_3[0] - pass_img_1[0]) * (pass_img_2[1] - pass_img_1[1])))
+    if S < 10718 or S > 64810:
+        return generate_img(user)
     else:
-        pass_img_1 = [coordinates_mass[0], coordinates_mass[1]]
-        pass_img_2 = [coordinates_mass[2], coordinates_mass[3]]
-        pass_img_3 = [coordinates_mass[4], coordinates_mass[5]]
-        S = 0.5 * (abs((pass_img_2[0] - pass_img_1[0]) * (pass_img_3[1] - pass_img_1[1]) -
-                       (pass_img_3[0] - pass_img_1[0]) * (pass_img_2[1] - pass_img_1[1])))
-        if S < 10718 or S > 64810:
-            return generate_img(user)
-        else:
-            newimg.save("./sweater/static/user_img.png")
-            image = open("./sweater/static/user_img.png", 'rb')
-            img_read = image.read()
-            img_encode = base64.encodebytes(img_read)
-            return img_encode
+        newimg.save("./sweater/static/user_img.png")
+        image = open("./sweater/static/user_img.png", 'rb').read()
+        img_encode = base64.encodebytes(image)
+        return img_encode
 
 
 def diagonal_img(user, new_img):
@@ -115,7 +112,8 @@ def check_frame(mass, user, fast_mod):
             if i in mass:
                 pos1 = mass.index(i)
     else:
-        pos1 = pass_coordinates(list(map(int, user.pass_img.replace('{', '').replace('}', '').split(','))))
+        pos = pass_coordinates(list(map(int, user.pass_img.replace('{', '').replace('}', '').split(','))))
+        pos1 = pos[1] * 13 + pos[0]
     return math.ceil(pos1 % 13) == math.ceil(int(user.coordinates) % 13)
 
 
@@ -126,10 +124,10 @@ def check_triangle(coordinates, user, fast_mod):
         pass_img_2 = [coordinates_mass[2], coordinates_mass[3]]
         pass_img_3 = [coordinates_mass[4], coordinates_mass[5]]
     else:
-        user_img = list(map(int, user.pass_img.replace('{', '').replace('}', '').split(',')))
-        pass_img_1 = pass_coordinates(user_img[0])
-        pass_img_2 = pass_coordinates(user_img[1])
-        pass_img_3 = pass_coordinates(user_img[2])
+        pass_mass = [i * 37 + 19 for i in pass_coordinates(list(map(int, user.pass_img.replace('{', '').replace('}', '').split(','))))]
+        pass_img_1 = [pass_mass[0], pass_mass[1]]
+        pass_img_2 = [pass_mass[2], pass_mass[3]]
+        pass_img_3 = [pass_mass[4], pass_mass[5]]
     a = (pass_img_1[0] - coordinates[0]) * (pass_img_2[1] - pass_img_1[1]) - (pass_img_2[0] - pass_img_1[0]) * (
             pass_img_1[1] - coordinates[1])
     b = (pass_img_2[0] - coordinates[0]) * (pass_img_3[1] - pass_img_2[1]) - (pass_img_3[0] - pass_img_2[0]) * (
@@ -147,8 +145,8 @@ def check_diagonal(coordinates, user, fast_mod):
             k.append([coordinates_mass[i + i], coordinates_mass[i + i + 1]])
     else:
         user_img = list(map(int, user.pass_img.replace('{', '').replace('}', '').split(',')))
-        for i in range(4):
-            k.append(pass_coordinates(user_img[i]))
+        k = [i * 37 + 19 for i in pass_coordinates(user_img)]
+        k = [[k[0], k[1]], [k[2], k[3]], [k[4], k[5]], [k[6], k[7]]]
     x, y = check_cross_point(k)
     print((coordinates[0] - x) ** 2 + (coordinates[1] - y) ** 2 <= 400)
     return (coordinates[0] - x) ** 2 + (coordinates[1] - y) ** 2 <= 400
@@ -203,26 +201,23 @@ def check_cross_point(k):
             return x, y
 
 
-def pass_coordinates(user_img):
+def pass_coordinates(pass_img):
+    mass = []
     for i in range(13):
         for j in range(13):
             image = Image.open("./sweater/static/user_img.png")
             cut_img = image.crop((37 * j, 37 * i, 37 * j + 37, 37 * i + 37))
             cut_img.save("./sweater/static/cut_img.png")
-            image = open("./sweater/static/cut_img.png", 'rb')
-            img_read = image.read()
-            img_encode_1 = base64.encodebytes(img_read)
+            image = open("./sweater/static/cut_img.png", 'rb').read()
+            img_encode_1 = base64.encodebytes(image)
 
-            image = Image.open("./sweater/static/image/" + str(user_img) + ".png")
-            image.thumbnail((37, 37))
-            image.save("./sweater/static/pass_img.png")
-            image = open("./sweater/static/pass_img.png", 'rb')
-            img_read = image.read()
-            img_encode_2 = base64.encodebytes(img_read)
-
-            if img_encode_1 == img_encode_2:
-                mass = [(j * 37) + 18 + 1, (i * 37) + 18 + 1]
-                return mass
+            for img in pass_img:
+                image = open("./sweater/static/image/" + str(img) + ".png", 'rb').read()
+                img_encode_2 = base64.encodebytes(image)
+                if img_encode_1 == img_encode_2:
+                    mass.append(j)
+                    mass.append(i)
+    return mass
 
 
 def gen_zone(pass_img):

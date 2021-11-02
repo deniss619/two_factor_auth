@@ -121,9 +121,9 @@ def secondFactor():
 
         if 0 <= user.counter < 5:
             if method == '1':
-                return module.generate_img(user)
-            elif method == '2':
                 return module.generate_img(user, 1)
+            elif method == '2':
+                return module.generate_img(user, 2)
             elif method == '3':
                 return jsonify({'img1': module.make_mass_for_img(user, 3), 'img2': module.generate_img(user, 3).decode('ascii')})
 
