@@ -1,15 +1,12 @@
-import base64
+import random
 
-from flask import render_template, redirect, url_for, request, flash, make_response
+from flask import render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, login_required, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-import random
-from PIL import Image
-
 from sweater import db, app
-from sweater.models import User
 from sweater import module
+from sweater.models import User
 
 
 @app.route('/success', methods=['GET'])
@@ -40,9 +37,6 @@ def firstFactor():
     return render_template('login.html')
 
 
-
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     login = request.form.get('login')
@@ -58,15 +52,10 @@ def register():
             user = User.query.filter_by(login=login).first()
             if user is None:
                 hash_pwd = generate_password_hash(password)
-
-                passImg = module.make_mass(pass_img)
-                zone = ''
-                probability = ''
+                probability = []
                 for i in range(50):
-                    probability += str(random.randint(22, 30)) + ','
-                    zone += str(module.gen_zone(passImg)) + ','
-                zone = zone[0:-1]
-                probability = probability[0:-1]
+                    probability.append(random.randint(22, 30))
+                zone = module.gen_zone(list(map(int, pass_img.split(','))))
                 new_user = User(login=login, password=hash_pwd, pass_img=pass_img, banned=0, zone=zone,
                                 probability=probability)
                 db.session.add(new_user)
@@ -75,9 +64,6 @@ def register():
             else:
                 flash('Такой пользователь уже существует')
     return render_template('register.html')
-
-
-
 
 
 @app.route('/checkMethod', methods=['GET', 'POST'])
@@ -95,25 +81,23 @@ def checkMethod():
 def secondFactor():
     login = request.form.get('login')
     coordinate = request.form.get("coordinate")
-    fastMod = request.form.get("fastMod")
+    fast_mod = request.form.get("fastMod")
     method = request.form.get("method")
     user = User.query.filter_by(login=login).first()
     if coordinate is not None:
-        coordinateMass = module.make_mass(coordinate)
-    user.banned = 0
+        coordinate_mass = list(map(int, coordinate.replace('{', '').replace('}', '').split(',')))
+    # user.banned = 0
     user.false_click_counter = 0
     db.session.add(user)
     db.session.commit()
-    if (int(user.banned) != 1):
-
+    if user.banned != 1:
         if coordinate is not None:
             if method == '1':
-                result = module.checkTriangle(coordinateMass, user, fastMod)
+                result = module.check_triangle(coordinate_mass, user, fast_mod)
             elif method == '2':
-                result = module.checkDiagonal(coordinateMass, user, fastMod)
+                result = module.check_diagonal(coordinate_mass, user, fast_mod)
             elif method == '3':
-                # result=checkFrame(coordinateMass, user, fastMod)
-                result = 1
+                result = module.check_frame(list(map(int, request.form.get("coordinate").split(','))), user, fast_mod)
             if result:
                 user.counter += 1
                 db.session.add(user)
@@ -124,25 +108,24 @@ def secondFactor():
                 db.session.add(user)
                 db.session.commit()
 
-            if (user.false_click_counter > 5):
+            if user.false_click_counter > 5:
                 user.banned = 1
                 user.false_click_counter = 0
                 db.session.add(user)
                 db.session.commit()
                 return 'banned'
-
         else:
             user.counter = 0
             db.session.add(user)
             db.session.commit()
 
-        if (0 <= user.counter < 5):
+        if 0 <= user.counter < 5:
             if method == '1':
                 return module.generate_img(user)
             elif method == '2':
                 return module.generate_img(user, 1)
             elif method == '3':
-                return 0  # generateFrame()
+                return jsonify({'img1': module.make_mass_for_img(user, 3), 'img2': module.generate_img(user, 3).decode('ascii')})
 
         else:
             login_user(user)

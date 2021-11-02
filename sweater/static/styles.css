@@ -11,7 +11,7 @@
     height: 640px;
     position: relative;
     text-align:center;
-    margin:0 auto;
+    margin: 0 auto;
 }
 
 #containerForLogin {
@@ -20,6 +20,57 @@
     position: relative;
     text-align:center;
     margin:0 auto;
+}
+
+#frame {
+    width: 481px;
+    height: 481px;
+    position: relative;
+    text-align:center;
+    margin: 0 auto;
+    float: right;
+}
+
+#passImgBlock {
+    width: 520px;
+    height: 520px;
+    position: relative;
+    text-align:center;
+    margin: 0 auto;
+    float: left;
+}
+
+#container {
+    width: 1050px;
+    height: 550px;
+    position: relative;
+    text-align:center;
+    margin: 0 auto;
+}
+
+
+.frame_img {
+    width:37px;
+    height:37px;
+    float:left;
+    text-align:center;
+
+}
+
+.button_bar {
+    position: absolute;
+    bottom: 0px;
+    left: 650px;
+}
+
+.hint {
+    margin-bottom: 10px;
+}
+
+#hint_logo {
+    height: 30px;
+    width: 30px;
+    vertical-align: middle;
 }
 
 .hidden{

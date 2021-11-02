@@ -14,69 +14,66 @@
 </div>
 
 <div id="firstFactorContainer">
-<h1>Авторизация</h1>
+    <h1>Авторизация</h1>
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul class="flashes">
-        {% for message in messages %}
-            <li id="flash">{{message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for message in messages %}
+                <li id="flash">{{message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 
-<div>
-    <p id="errorMessage" class="hidden">Ошибка в логине или пароле</p>
-</div>
-<form method="POST" action="firstFactor" id="form">
-    <table>
+    <div>
+        <p id="errorMessage" class="hidden">Ошибка в логине или пароле</p>
+    </div>
+    <form method="POST" action="firstFactor" id="form">
+        <table>
+            <tr>
+                <td>Логин</td>
+                <td><input type="text" name="login" id="login"></td>
+            </tr>
+            <tr>
+                <td>Пароль</td>
+                <td><input type="password" name="password" id="password"></td>
+            </tr>
+            <tr>
+                <td><input id="coordinateOfClick" type="hidden" name="coordinateOfClick"></td>
+            </tr>
+        </table>
+    </form>
         <tr>
-            <td>Логин</td>
-            <td><input type="text" name="login" id="login"></td>
+            <td><button onclick="checkLoginPassword()">Войти</button></td>
+            <td><a href="{{url_for('register')}}">Регистрация</a> </td>
         </tr>
-        <tr>
-            <td>Пароль</td>
-            <td><input type="password" name="password" id="password"></td>
-        </tr>
-        <tr>
-            <td><input id="coordinateOfClick" type="hidden" name="coordinateOfClick"></td>
-        </tr>
-    </table>
-</form>
-<tr>
-    <td><button onclick="checkLoginPassword()">Войти</button></td>
-    <td><a href="{{url_for('register')}}">Регистрация</a> </td>
-</tr>
 </div>
 <form id="formForCheckMethod" class="hidden">
     <h2>Выберите метод аутентификации</h2>
         <p>
-            <input name="method" type="radio" value="triangle" />Метод треугольника
+            <input name="method" type="radio" value="triangle" onClick="document.getElementById('submitMethod').disabled = false"/>Метод треугольника
         </p>
         <p>
-            <input name="method" type="radio" value="diagonal" />Метод диагоналей
+            <input name="method" type="radio" value="diagonal" onClick="document.getElementById('submitMethod').disabled = false"/>Метод диагоналей
         </p>
         <p>
-            <input name="method" type="radio" value="frame" />Метод подвижной рамки
+            <input name="method" type="radio" value="frame" onClick="document.getElementById('submitMethod').disabled = false"/>Метод подвижной рамки
         </p>
         <p>
-            <button id="submitMethod">Подтвердить</button>
+            <button id="submitMethod" disabled>Подтвердить</button>
         </p>
 </form>
 
-
-<div id="containerForLogin" >
-    <img id="loginImg">
-</div>
+<div id="container" class="hidden"></div>
 <div id="my_modal" class="modal">
-<div class="modal_content">
-  <span class="close_modal_window">×</span>
-  <p>Вы превысили число ошибочных попыток входа и нам пришлось заблокировать Ваш аккаунт. Что бы снять блокировку,
-      воспользуйтесь процедурой восстановления доступа.</p>
-    <button onclick="recovery()">Восстановить доступ</button>
-    <button onclick="back_to_auth()">Вернуться к авторизации</button>
-</div>
+    <div class="modal_content">
+      <span class="close_modal_window">×</span>
+      <p>Вы превысили число ошибочных попыток входа и нам пришлось заблокировать Ваш аккаунт. Что бы снять блокировку,
+          воспользуйтесь процедурой восстановления доступа.</p>
+        <button onclick="recovery()">Восстановить доступ</button>
+        <button onclick="back_to_auth()">Вернуться к авторизации</button>
+    </div>
 </div>
 
 
